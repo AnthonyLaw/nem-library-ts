@@ -105,4 +105,21 @@ describe("TransactionHttp", () => {
         done();
       });
   });
+
+  it("should create a TRANSFER with node network time", async () => {
+    const transactionHttp = new TransactionHttp([{domain: TestVariables.DEFAULT_TEST_DOMAIN}]);
+    const account = Account.createWithPrivateKey(privateKey);
+    const transferTransaction = TransferTransaction.create(
+          await TimeWindow.createWith(),
+          new Address(recipientAccount),
+          new XEM(0),
+          PlainMessage.createFromDTO('74657374207472616e73616374696f6e')
+        );
+
+    const signedTransaction = account.signTransaction(transferTransaction);
+
+    let result = await transactionHttp.announceTransaction(signedTransaction).toPromise();
+    expect(result.message).to.equal("SUCCESS");
+    expect(result.transactionHash.data).to.not.null;
+  });
 });

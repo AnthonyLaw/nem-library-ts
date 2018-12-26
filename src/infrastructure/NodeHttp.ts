@@ -152,4 +152,20 @@ export class NodeHttp extends HttpEndpoint {
         })
       )
   }
+
+  /**
+   * Requests network time.
+   * @returns Promise<number>
+   */
+  public async getNetworkTime(): Promise<number> {
+    const url = 'http://23.228.67.85:7890/time-sync/network-time';
+    let receiveTimeStamp = 0;
+    return requestPromise(url).then(res => {
+      res = JSON.parse(res);
+      receiveTimeStamp = res.receiveTimeStamp / 1000;
+      let nodeTimeStamp = Math.floor(receiveTimeStamp) + Math.floor(new Date().getSeconds() / 10);
+
+      return nodeTimeStamp;
+    });
+  }
 }

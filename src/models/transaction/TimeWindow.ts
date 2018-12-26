@@ -23,6 +23,7 @@
  */
 
 import {ChronoUnit, Instant, LocalDateTime, ZoneId} from "js-joda";
+import {NodeHttp} from '../../infrastructure/NodeHttp';
 
 export class TimeWindow {
   public static timestampNemesisBlock: number = 1427587585;
@@ -58,6 +59,28 @@ export class TimeWindow {
   public static createWithDeadline(deadline: number = 2, chronoUnit: ChronoUnit = ChronoUnit.HOURS): TimeWindow {
     const currentTimeStamp = (new Date()).getTime();
     const timeStampDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentTimeStamp), ZoneId.SYSTEM);
+    const deadlineDateTime = timeStampDateTime.plus(deadline, chronoUnit);
+
+    if (deadline <= 0) {
+      throw new Error("deadline should be greater than 0");
+    } else if (timeStampDateTime.plus(24, ChronoUnit.HOURS).compareTo(deadlineDateTime) != 1) {
+      throw new Error("deadline should be less than 24 hours");
+    }
+
+    return new TimeWindow(timeStampDateTime, deadlineDateTime);
+  }
+
+  /**
+   * @param deadline
+   * @param chronoUnit
+   * @returns {TimeWindow}
+   */
+  public static async createWith(deadline: number = 2, chronoUnit: ChronoUnit = ChronoUnit.HOURS): Promise<TimeWindow> {
+
+    const nodeHttp = new NodeHttp();
+    const nodeTimestamp = await nodeHttp.getNetworkTime();
+
+    const timeStampDateTime = TimeWindow.createLocalDateTimeFromNemDate(nodeTimestamp);
     const deadlineDateTime = timeStampDateTime.plus(deadline, chronoUnit);
 
     if (deadline <= 0) {

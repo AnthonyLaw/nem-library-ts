@@ -140,4 +140,11 @@ describe("NodeHttp", () => {
     const nodeHttp = new NodeHttp([{domain: "bob.nem.ninja"}]);
     expect(nodeHttp.nextNode()).to.contain("bob.nem.ninja");
   });
+
+  it('should get network node time', async () => {
+    const nodeHttp = new NodeHttp();
+    const nodeTimeStamp = await nodeHttp.getNetworkTime()
+    console.log(nodeTimeStamp);
+    expect(nodeTimeStamp).to.not.be.undefined;
+  });
 });
